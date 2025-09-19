@@ -1,3 +1,4 @@
+import Base64Utility from '@/components/Base64Utility';
 import JsonFormatter from '@/components/JsonFormatter';
 import PdfToWordConverter from '@/components/PdfToWordConverter';
 import RegexTester from '@/components/RegexTester';
@@ -8,6 +9,8 @@ const tools = {
   'json-formatter': { component: JsonFormatter, title: 'JSON Formatter' },
   'pdf-to-word': { component: PdfToWordConverter, title: 'PDF to Word Converter' },
   'regex-tester': { component: RegexTester, title: 'Regex Tester & Builder' },
+  'base64-utility': { component: Base64Utility, title: 'Base64 Encoder/Decoder' },
+
   // Add more: base64, app-icon-generator, markdown-to-html, html-viewer, etc.
 };
 
@@ -15,8 +18,8 @@ export async function generateStaticParams() {
   return Object.keys(tools).map((slug) => ({ slug }));
 }
 
-export default function ToolPage({ params }: { params: { slug: string } }) {
-  const tool = tools[params.slug as keyof typeof tools];
+export default async function ToolPage({ params }: { params: { slug: string } }) {
+  const tool = tools[(await params).slug as keyof typeof tools];
   if (!tool) notFound();
 
   return (

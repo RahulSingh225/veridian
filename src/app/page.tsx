@@ -20,7 +20,14 @@ const tools = [
     title: 'PDF to Word',
     description: 'Convert PDF documents to editable Word files while maintaining formatting.',
     icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'base64-utility',
+    title: 'Base64 Utility',
+    description: 'Encode and decode Base64 strings and files with ease.',
+    icon: '📄' // You can replace this with an actual icon component
   }
+
 ];
 
 export default function Home() {

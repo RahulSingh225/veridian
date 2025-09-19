@@ -1,29 +1,90 @@
 'use server';
 
-import { PDFDocument } from 'pdf-lib';
-import mammoth from 'mammoth';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { writeFile, unlink } from 'fs/promises';
 import path from 'path';
 import { tmpdir } from 'os';
 
-export async function convertPdfToWord(formData: FormData) {
+// Utility to sanitize file names
+const sanitizeFileName = (name: string): string => {
+  return name.replace(/[^a-zA-Z0-9-_]/g, '_').slice(0, 50);
+};
+
+// Main Server Action to convert PDF to DOCX
+export async function convertPdfToWord(formData: FormData): Promise<{
+  success: boolean;
+  docUrl?: string;
+  error?: string;
+}> {
   const file = formData.get('file') as File;
-  if (!file) return { success: false, error: 'No file' };
+  if (!file || file.type !== 'application/pdf') {
+    return { success: false, error: 'No valid PDF file provided' };
+  }
 
   try {
-    const buffer = await file.arrayBuffer();
-    const pdfDoc = await PDFDocument.load(new Uint8Array(buffer));
-    // Extract text or process as needed; here we assume conversion via mammoth for DOCX output
-    const tempPdfPath = path.join(tmpdir(), `${Date.now()}.pdf`);
-    await writeFile(tempPdfPath, buffer);
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      return { success: false, error: 'File size exceeds 10MB limit' };
+    }
 
-    const { value: html } = await mammoth.convertToHtml({ path: tempPdfPath }); // Mammoth for PDF? Adapt if needed; alt: use pdf-parse for text extract then docx lib
-    await unlink(tempPdfPath);
+    // Dynamically import pdf-parse to avoid initialization issues
+    const { default: pdfParse } = await import('pdf-parse');
 
-    // Generate DOCX (use docx lib if needed; simplified here)
-    const docUrl = `/api/download?content=${encodeURIComponent(html)}`; // Or save to temp and return URL
+    // Read PDF file
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Extract text from PDF using pdf-parse
+    const pdfData = await pdfParse(buffer);
+    const textContent = pdfData.text;
+
+    if (!textContent.trim()) {
+      return { success: false, error: 'No extractable text found in PDF' };
+    }
+
+    // Create DOCX document
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: textContent,
+                  size: 24, // Font size in half-points (12pt)
+                }),
+              ],
+            }),
+          ],
+        },
+      ],
+    });
+
+    // Generate DOCX buffer
+    const docxBuffer = await Packer.toBuffer(doc);
+
+    // Save DOCX temporarily
+    const tempDocxPath = `${sanitizeFileName(file.name)}-${Date.now()}.docx`;
+    
+    await writeFile(tempDocxPath, docxBuffer);
+
+    // Generate a temporary download URL
+    const docUrl = `/api/download?file=${encodeURIComponent(tempDocxPath)}`;
+
+    // Schedule cleanup (5 minutes)
+    setTimeout(async () => {
+      try {
+        await unlink(tempDocxPath);
+        console.log(`Cleaned up temporary file: ${tempDocxPath}`);
+      } catch (cleanupErr) {
+        console.error('Cleanup failed:', cleanupErr);
+      }
+    }, 1000 * 60 * 5);
+
     return { success: true, docUrl };
   } catch (err) {
-    return { success: false, error: (err as Error).message };
+    console.error('PDF to DOCX conversion error:', err);
+    return { success: false, error: (err as Error).message || 'Conversion failed' };
   }
 }

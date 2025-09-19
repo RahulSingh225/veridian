@@ -5,7 +5,8 @@ images: {
     remotePatterns: [{ hostname: '**' }], // Allow external images for app icon gen
   },
   experimental: {
-    serverActions: { bodySizeLimit: '10mb' }, // For file uploads
+    serverActions: { bodySizeLimit: '10mb' }, 
+    serverComponentsExternalPackages: ['pdf-parse'],// For file uploads
   },
 };
 
