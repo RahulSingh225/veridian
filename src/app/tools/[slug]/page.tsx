@@ -1,7 +1,17 @@
+import QRCodeTool from '@/components/BarcodeUtility';
 import Base64Utility from '@/components/Base64Utility';
+import ColorPaletteGenerator from '@/components/ColorPalletteGenerator';
+import ConverterTool from '@/components/CSV-JSON-YAMLConverter';
+import MinifierTool from '@/components/HTML-CSS-JS-Minifier';
+import IconGenerator from '@/components/IconGenerator';
+import ImageCompressor from '@/components/ImageCompressor';
 import JsonFormatter from '@/components/JsonFormatter';
+import MockDataGenerator from '@/components/MockDataGenerator';
+import PasswordUUIDGenerator from '@/components/PasswordUUIDGenerator';
 import PdfToWordConverter from '@/components/PdfToWordConverter';
 import RegexTester from '@/components/RegexTester';
+import TimestampConverter from '@/components/TimestampConverter';
+import URLEncoderDecoder from '@/components/UrlEncoderDecoder';
 import { notFound } from 'next/navigation';
 
 // Define your tools slugs and metadata
@@ -10,6 +20,16 @@ const tools = {
   'pdf-to-word': { component: PdfToWordConverter, title: 'PDF to Word Converter' },
   'regex-tester': { component: RegexTester, title: 'Regex Tester & Builder' },
   'base64-utility': { component: Base64Utility, title: 'Base64 Encoder/Decoder' },
+  'qr-utility': { component: QRCodeTool, title: 'QR Code Utility' },
+  'url-encode': { component: URLEncoderDecoder, title: 'QR Code Utility' },
+  'color-pallette': { component: ColorPaletteGenerator, title: 'QR Code Utility' },
+  'csv-json-yaml': { component: ConverterTool, title: 'QR Code Utility' },
+  'html-css-js': { component: MinifierTool, title: 'QR Code Utility' },
+  'icon-generate': { component: IconGenerator, title: 'QR Code Utility' },
+  'img-compress': { component: ImageCompressor, title: 'QR Code Utility' },
+  'mock-data': { component: MockDataGenerator, title: 'QR Code Utility' },
+  'uuid-pass': { component: PasswordUUIDGenerator, title: 'QR Code Utility' },
+  'time-convert': { component: TimestampConverter, title: 'QR Code Utility' },
 
   // Add more: base64, app-icon-generator, markdown-to-html, html-viewer, etc.
 };

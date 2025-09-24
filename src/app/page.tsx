@@ -26,6 +26,66 @@ const tools = [
     title: 'Base64 Utility',
     description: 'Encode and decode Base64 strings and files with ease.',
     icon: '📄' // You can replace this with an actual icon component
+  },
+   {
+    slug: 'qr-utility',
+    title: 'QR-Code Utility',
+    description: 'Generate and scan QR codes effortlessly.',
+    icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'url-encode',
+    title: 'URL Encoder/Decoder',
+    description: 'Encode and decode URLs, and build query strings easily.',
+    icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'color-pallette',
+    title: 'Color Palette Generator',
+    description: 'Generate color palettes from images or base colors.',
+    icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'csv-json-yaml',
+    title: 'CSV/JSON/YAML Converter',
+    description: 'Convert between CSV, JSON, and YAML formats seamlessly.',
+    icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'html-css-js',
+    title: 'HTML/CSS/JS Minifier',
+    description: 'Minify or beautify your HTML, CSS, and JavaScript code.',
+    icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'icon-generate',
+    title: 'App Icon Generator',
+    description: 'Generate app icons in various sizes for different platforms.',
+    icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'img-compress',
+    title: 'Image Compressor',
+    description: 'Compress images without losing quality.',
+    icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'mock-data',
+    title: 'Mock Data Generator',
+    description: 'Generate realistic mock data for testing and development.',
+    icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'uuid-pass',
+    title: 'Password & UUID Generator',
+    description: 'Generate secure passwords and UUIDs quickly.',
+    icon: '📄' // You can replace this with an actual icon component
+  },
+  {
+    slug: 'time-convert',
+    title: 'Timestamp Converter',
+    description: 'Convert and manipulate timestamps easily.',
+    icon: '📄' // You can replace this with an actual icon component
   }
 
 ];
