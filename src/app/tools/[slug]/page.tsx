@@ -22,7 +22,7 @@ const tools = {
   'base64-utility': { component: Base64Utility, title: 'Base64 Encoder/Decoder' },
   'qr-utility': { component: QRCodeTool, title: 'QR Code Utility' },
   'url-encode': { component: URLEncoderDecoder, title: 'QR Code Utility' },
-  'color-pallette': { component: ColorPaletteGenerator, title: 'QR Code Utility' },
+  'color-pallette': { component: ColorPaletteGenerator, title: 'Smart Color Palette Generator' },
   'csv-json-yaml': { component: ConverterTool, title: 'QR Code Utility' },
   'html-css-js': { component: MinifierTool, title: 'QR Code Utility' },
   'icon-generate': { component: IconGenerator, title: 'QR Code Utility' },

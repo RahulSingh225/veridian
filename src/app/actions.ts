@@ -2,8 +2,7 @@
 
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { writeFile, unlink } from 'fs/promises';
-import path from 'path';
-import { tmpdir } from 'os';
+
 
 // Utility to sanitize file names
 const sanitizeFileName = (name: string): string => {

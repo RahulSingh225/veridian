@@ -3,6 +3,8 @@
 
 import { useState } from 'react';
 import { saveAs } from 'file-saver';
+import Image from 'next/image';
+
 import { 
   encodeBase64, 
   decodeBase64, 
@@ -347,15 +349,21 @@ export default function Base64Utility() {
             </div>
           )}
           {preview && (
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Preview</span>
-              </label>
-              <div className="card bg-base-200 p-4">
-                <img src={preview} alt="Preview" className="max-w-full h-auto rounded-lg" />
-              </div>
-            </div>
-          )}
+  <div className="form-control w-full">
+    <label className="label">
+      <span className="label-text">Preview</span>
+    </label>
+    <div className="card bg-base-200 p-4">
+      <Image 
+        src={preview} 
+        alt="Preview" 
+        className="max-w-full h-auto rounded-lg" 
+        width={500} 
+        height={300} 
+      />
+    </div>
+  </div>
+)}
         </div>
       </div>
     </div>

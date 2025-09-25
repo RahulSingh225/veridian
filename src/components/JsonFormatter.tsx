@@ -1,132 +1,607 @@
 'use client';
 
-import { useState } from 'react';
-import { TextareaAutosize } from '@mui/material'; // Or DaisyUI equivalent
+import { useState, useRef, useEffect } from 'react';
+import { 
+  Code, 
+  Copy, 
+  Download, 
+  Upload, 
+  RefreshCw, 
+  CheckCircle, 
+  XCircle, 
+  FileText, 
+  Minimize, 
+  Maximize, 
+  Eye, 
+  EyeOff,
+  Zap,
+  Search,
+  Settings
+} from 'lucide-react';
+
+interface JsonStats {
+  size: number;
+  lines: number;
+  depth: number;
+  objects: number;
+  arrays: number;
+  strings: number;
+  numbers: number;
+  booleans: number;
+  nulls: number;
+}
 
 export default function JsonFormatter() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [indentSize, setIndentSize] = useState(2);
+  const [sortKeys, setSortKeys] = useState(false);
+  const [minifyMode, setMinifyMode] = useState(false);
+  const [showStats, setShowStats] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
+  const [stats, setStats] = useState<JsonStats>({
+    size: 0,
+    lines: 0,
+    depth: 0,
+    objects: 0,
+    arrays: 0,
+    strings: 0,
+    numbers: 0,
+    booleans: 0,
+    nulls: 0
+  });
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const outputRef = useRef<HTMLPreElement>(null);
 
-  const formatJson = () => {
-    try {
-      const parsed = JSON.parse(input);
-      setOutput(JSON.stringify(parsed, null, 2));
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (type === 'success') {
+      setSuccess(message);
       setError('');
-    } catch (err) {
-      setError('Invalid JSON: Please check your syntax');
-      setOutput('');
+      setTimeout(() => setSuccess(''), 3000);
+    } else {
+      setError(message);
+      setSuccess('');
+      setTimeout(() => setError(''), 5000);
     }
   };
 
+  const calculateStats = (obj: any, depth = 0): JsonStats => {
+    const stats: JsonStats = {
+      size: JSON.stringify(obj).length,
+      lines: JSON.stringify(obj, null, 2).split('\n').length,
+      depth: depth,
+      objects: 0,
+      arrays: 0,
+      strings: 0,
+      numbers: 0,
+      booleans: 0,
+      nulls: 0
+    };
+
+    const traverse = (value: any, currentDepth: number) => {
+      stats.depth = Math.max(stats.depth, currentDepth);
+      
+      if (value === null) {
+        stats.nulls++;
+      } else if (typeof value === 'boolean') {
+        stats.booleans++;
+      } else if (typeof value === 'number') {
+        stats.numbers++;
+      } else if (typeof value === 'string') {
+        stats.strings++;
+      } else if (Array.isArray(value)) {
+        stats.arrays++;
+        value.forEach(item => traverse(item, currentDepth + 1));
+      } else if (typeof value === 'object') {
+        stats.objects++;
+        Object.values(value).forEach(item => traverse(item, currentDepth + 1));
+      }
+    };
+
+    traverse(obj, 0);
+    return stats;
+  };
+
+  const formatJson = async () => {
+    if (!input.trim()) {
+      showToast('Please enter some JSON to format', 'error');
+      return;
+    }
+
+    setIsValidating(true);
+    
+    try {
+      let parsed = JSON.parse(input);
+      
+      if (sortKeys) {
+        parsed = sortObjectKeys(parsed);
+      }
+      
+      let formatted;
+      if (minifyMode) {
+        formatted = JSON.stringify(parsed);
+      } else {
+        formatted = JSON.stringify(parsed, null, indentSize);
+      }
+      
+      setOutput(formatted);
+      setStats(calculateStats(parsed));
+      setError('');
+      showToast('JSON formatted successfully!');
+    } catch (err) {
+      const errorMsg = (err as Error).message;
+      showToast(`Invalid JSON: ${errorMsg}`, 'error');
+      setOutput('');
+      setStats({
+        size: 0,
+        lines: 0,
+        depth: 0,
+        objects: 0,
+        arrays: 0,
+        strings: 0,
+        numbers: 0,
+        booleans: 0,
+        nulls: 0
+      });
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const sortObjectKeys = (obj: any): any => {
+    if (Array.isArray(obj)) {
+      return obj.map(sortObjectKeys);
+    } else if (obj !== null && typeof obj === 'object') {
+      const sorted: any = {};
+      Object.keys(obj).sort().forEach(key => {
+        sorted[key] = sortObjectKeys(obj[key]);
+      });
+      return sorted;
+    }
+    return obj;
+  };
+
   const handleCopy = async () => {
+    if (!output) {
+      showToast('No formatted JSON to copy', 'error');
+      return;
+    }
+    
     try {
       await navigator.clipboard.writeText(output);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      showToast('Copied to clipboard!');
     } catch (err) {
-      setError('Failed to copy to clipboard');
+      showToast('Failed to copy to clipboard', 'error');
     }
+  };
+
+  const handleDownload = () => {
+    if (!output) {
+      showToast('No formatted JSON to download', 'error');
+      return;
+    }
+    
+    const blob = new Blob([output], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `formatted-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('JSON file downloaded!');
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.json')) {
+      showToast('Please select a JSON file', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      setInput(content);
+      showToast(`File "${file.name}" loaded successfully!`);
+    };
+    reader.readAsText(file);
   };
 
   const clearAll = () => {
     setInput('');
     setOutput('');
     setError('');
+    setSuccess('');
+    setSearchTerm('');
+    setStats({
+      size: 0,
+      lines: 0,
+      depth: 0,
+      objects: 0,
+      arrays: 0,
+      strings: 0,
+      numbers: 0,
+      booleans: 0,
+      nulls: 0
+    });
   };
 
+  const validateJson = (value: string) => {
+    if (!value.trim()) {
+      setError('');
+      return;
+    }
+    
+    try {
+      JSON.parse(value);
+      setError('');
+    } catch (err) {
+      setError(`Invalid JSON: ${(err as Error).message}`);
+    }
+  };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      validateJson(input);
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [input]);
+
+  const highlightSearch = (text: string) => {
+    if (!searchTerm.trim()) return text;
+    
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<mark class="bg-warning text-warning-content">$1</mark>');
+  };
+
+  const sampleJsons = [
+    {
+      name: 'Simple Object',
+      data: '{"name": "John Doe", "age": 30, "city": "New York"}'
+    },
+    {
+      name: 'Array Example',
+      data: '[{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]'
+    },
+    {
+      name: 'Complex Nested',
+      data: '{"users": [{"id": 1, "profile": {"name": "Alice", "settings": {"theme": "dark", "notifications": true}}}]}'
+    }
+  ];
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="stats shadow bg-base-200">
-        <div className="stat">
-          <div className="stat-title">Input Size</div>
-          <div className="stat-value text-primary">{input.length}</div>
-          <div className="stat-desc">Characters</div>
+    <div className="max-w-7xl mx-auto p-4 space-y-6">
+      {/* Quick Actions & Settings */}
+      <div className="navbar bg-base-200 rounded-box">
+        <div className="navbar-start">
+          <div className="dropdown">
+            <div tabIndex={0} role="button" className="btn btn-ghost">
+              <Settings className="w-5 h-5" />
+              Settings
+            </div>
+            <div className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-80 mt-2">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Indent Size</span>
+                  <span className="label-text-alt">{indentSize} spaces</span>
+                </label>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="8" 
+                  value={indentSize} 
+                  onChange={(e) => setIndentSize(Number(e.target.value))}
+                  className="range range-primary range-sm" 
+                />
+              </div>
+              <div className="form-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">Sort Keys</span>
+                  <input 
+                    type="checkbox" 
+                    checked={sortKeys}
+                    onChange={(e) => setSortKeys(e.target.checked)}
+                    className="toggle toggle-primary toggle-sm" 
+                  />
+                </label>
+              </div>
+              <div className="form-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">Minify Mode</span>
+                  <input 
+                    type="checkbox" 
+                    checked={minifyMode}
+                    onChange={(e) => setMinifyMode(e.target.checked)}
+                    className="toggle toggle-secondary toggle-sm" 
+                  />
+                </label>
+              </div>
+              <div className="form-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">Show Statistics</span>
+                  <input 
+                    type="checkbox" 
+                    checked={showStats}
+                    onChange={(e) => setShowStats(e.target.checked)}
+                    className="toggle toggle-accent toggle-sm" 
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div className="dropdown">
+            <div tabIndex={0} role="button" className="btn btn-ghost">
+              <FileText className="w-5 h-5" />
+              Samples
+            </div>
+            <div className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64 mt-2">
+              {sampleJsons.map((sample, index) => (
+                <button
+                  key={index}
+                  className="btn btn-ghost btn-sm justify-start"
+                  onClick={() => {
+                    setInput(sample.data);
+                    showToast(`Sample "${sample.name}" loaded!`);
+                  }}
+                >
+                  {sample.name}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="stat">
-          <div className="stat-title">Output Size</div>
-          <div className="stat-value text-secondary">{output.length}</div>
-          <div className="stat-desc">Characters</div>
+        
+        <div className="navbar-end gap-2">
+          <input
+            type="file"
+            accept=".json"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+          />
+          
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Upload className="w-4 h-4" />
+            Upload
+          </button>
+          
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={clearAll}
+            disabled={!input && !output}
+          >
+            <RefreshCw className="w-4 h-4" />
+            Clear
+          </button>
         </div>
       </div>
 
+      {/* Alerts */}
+      {error && (
+        <div className="alert alert-error">
+          <XCircle className="w-5 h-5" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {success && (
+        <div className="alert alert-success">
+          <CheckCircle className="w-5 h-5" />
+          <span>{success}</span>
+        </div>
+      )}
+
+      {/* Statistics */}
+      {showStats && (
+        <div className="stats stats-vertical lg:stats-horizontal shadow bg-base-100 w-full">
+          <div className="stat">
+            <div className="stat-figure text-primary">
+              <FileText className="w-8 h-8" />
+            </div>
+            <div className="stat-title">Input Size</div>
+            <div className="stat-value text-primary">{input.length.toLocaleString()}</div>
+            <div className="stat-desc">{stats.lines} lines</div>
+          </div>
+          
+          <div className="stat">
+            <div className="stat-figure text-secondary">
+              <Code className="w-8 h-8" />
+            </div>
+            <div className="stat-title">Output Size</div>
+            <div className="stat-value text-secondary">{output.length.toLocaleString()}</div>
+            <div className="stat-desc">Depth: {stats.depth}</div>
+          </div>
+          
+          <div className="stat">
+            <div className="stat-figure text-accent">
+              <Zap className="w-8 h-8" />
+            </div>
+            <div className="stat-title">Objects</div>
+            <div className="stat-value text-accent">{stats.objects}</div>
+            <div className="stat-desc">{stats.arrays} arrays</div>
+          </div>
+          
+          <div className="stat">
+            <div className="stat-title">Data Types</div>
+            <div className="stat-value text-sm">
+              <div className="grid grid-cols-2 gap-1 text-xs">
+                <span>Strings: {stats.strings}</span>
+                <span>Numbers: {stats.numbers}</span>
+                <span>Booleans: {stats.booleans}</span>
+                <span>Nulls: {stats.nulls}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Input Panel */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body p-6">
-            <h2 className="card-title text-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
-              </svg>
-              Input JSON
-              <button 
-                className="btn btn-ghost btn-circle btn-sm ml-auto"
-                onClick={clearAll}
-                disabled={!input && !output}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                </svg>
-              </button>
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="card-title text-primary">
+                <Code className="w-5 h-5" />
+                Input JSON
+                {input && !error && (
+                  <div className="badge badge-success gap-1">
+                    <CheckCircle className="w-3 h-3" />
+                    Valid
+                  </div>
+                )}
+                {error && (
+                  <div className="badge badge-error gap-1">
+                    <XCircle className="w-3 h-3" />
+                    Invalid
+                  </div>
+                )}
+              </h2>
+            </div>
+            
             <textarea
-              className={`textarea textarea-bordered h-[500px] font-mono text-base-content/70 ${error ? 'textarea-error' : ''}`}
-              placeholder="Paste your JSON here..."
+              className={`textarea textarea-bordered h-96 font-mono text-sm leading-relaxed resize-none ${
+                error ? 'textarea-error' : input && !error ? 'textarea-success' : ''
+              }`}
+              placeholder="Paste your JSON here... or use samples from the dropdown above"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               spellCheck={false}
             />
-            {error && (
-              <div className="alert alert-error mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{error}</span>
-              </div>
-            )}
-            <div className="card-actions justify-end mt-4">
+            
+            <div className="flex flex-wrap gap-2 mt-4">
               <button 
-                className="btn btn-primary btn-wide"
+                className={`btn btn-primary flex-1 min-w-32 ${isValidating ? 'loading' : ''}`}
                 onClick={formatJson}
-                disabled={!input}
+                disabled={!input.trim() || isValidating}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
-                </svg>
-                Format JSON
+                {isValidating ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4" />
+                    {minifyMode ? 'Minify' : 'Format'} JSON
+                  </>
+                )}
               </button>
+              
+              <div className="tooltip" data-tip={minifyMode ? "Switch to Pretty Print" : "Switch to Minify"}>
+                <button 
+                  className={`btn ${minifyMode ? 'btn-secondary' : 'btn-outline btn-secondary'}`}
+                  onClick={() => setMinifyMode(!minifyMode)}
+                >
+                  {minifyMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Output Panel */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body p-6">
-            <h2 className="card-title text-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
-              </svg>
-              Formatted Output
-              {output && (
-                <button 
-                  className={`btn btn-ghost btn-circle btn-sm ml-auto tooltip tooltip-left`}
-                  data-tip={copied ? 'Copied!' : 'Copy to clipboard'}
-                  onClick={handleCopy}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
-                  </svg>
-                </button>
-              )}
-            </h2>
-            <div className="bg-base-200 rounded-lg p-4 h-[500px] overflow-auto">
-              <pre className="font-mono text-base-content/70 whitespace-pre-wrap">
-                {output || (
-                  <span className="text-base-content/50 italic">
-                    Formatted JSON will appear here...
-                  </span>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="card-title text-secondary">
+                <FileText className="w-5 h-5" />
+                Formatted Output
+                {output && (
+                  <div className="badge badge-secondary">
+                    {minifyMode ? 'Minified' : 'Formatted'}
+                  </div>
                 )}
-              </pre>
+              </h2>
+              
+              {output && (
+                <div className="flex gap-2">
+                  <div className="join">
+                    <input
+                      className="input input-bordered input-sm join-item w-32"
+                      placeholder="Search in output..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <button className="btn btn-sm join-item">
+                      <Search className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  <div className="tooltip" data-tip="Copy to clipboard">
+                    <button 
+                      className="btn btn-ghost btn-sm"
+                      onClick={handleCopy}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  <div className="tooltip" data-tip="Download as file">
+                    <button 
+                      className="btn btn-ghost btn-sm"
+                      onClick={handleDownload}
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="bg-base-200 rounded-lg h-96 overflow-auto border">
+              <pre 
+                ref={outputRef}
+                className="p-4 font-mono text-sm leading-relaxed h-full m-0 whitespace-pre-wrap"
+                dangerouslySetInnerHTML={{
+                  __html: output 
+                    ? highlightSearch(output)
+                    : '<span class="text-base-content/50 italic">Formatted JSON will appear here...</span>'
+                }}
+              />
+            </div>
+            
+            {output && (
+              <div className="mt-4 p-3 bg-base-300 rounded-lg">
+                <div className="text-xs text-base-content/70">
+                  <div className="grid grid-cols-2 gap-2">
+                    <span>Lines: <strong>{output.split('\n').length}</strong></span>
+                    <span>Size: <strong>{(new Blob([output]).size / 1024).toFixed(2)} KB</strong></span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Features Info */}
+      <div className="card bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200">
+        <div className="card-body">
+          <h3 className="font-semibold text-blue-800 mb-3">🚀 Features</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-blue-700">
+            <div className="space-y-1">
+              <div>• Real-time JSON validation</div>
+              <div>• Customizable indentation (1-8 spaces)</div>
+              <div>• Minify & beautify modes</div>
+            </div>
+            <div className="space-y-1">
+              <div>• Sort object keys alphabetically</div>
+              <div>• Detailed JSON statistics</div>
+              <div>• Search within formatted output</div>
+            </div>
+            <div className="space-y-1">
+              <div>• File upload & download</div>
+              <div>• Sample JSON templates</div>
+              <div>• Copy to clipboard</div>
             </div>
           </div>
         </div>
