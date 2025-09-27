@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
   archive.finalize();
 
-  return new NextResponse(pass, {
+  return new NextResponse(pass as unknown as ArrayBuffer, {
     headers: {
       'Content-Type': 'application/zip',
       'Content-Disposition': 'attachment; filename="app-icons.zip"',

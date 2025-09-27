@@ -58,7 +58,7 @@ export default function TimestampConverter() {
       }
 
       let output = '';
-      let formatType = outputType;
+      const formatType = outputType;
       if (outputType === 'unix') {
         output = getUnixTime(date).toString();
       } else if (outputType === 'iso') {

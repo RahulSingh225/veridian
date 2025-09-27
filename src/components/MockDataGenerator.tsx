@@ -63,7 +63,7 @@ export default function MockDataGenerator() {
     }
 
     if (lowerKey.includes('username')) {
-      return faker.internet.userName();
+      return faker.internet.username();
     }
 
     if (lowerKey.includes('password')) {

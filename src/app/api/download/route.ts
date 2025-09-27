@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
   try {
     const fileBuffer = await readFile(filePath);
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(fileBuffer as unknown as ArrayBuffer, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'Content-Disposition': 'attachment; filename="converted.docx"',

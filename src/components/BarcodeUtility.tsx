@@ -85,7 +85,8 @@ export default function QRCodeTool() {
     if (file) {
       setScanResult('');
       setError('');
-      Html5Qrcode.getQrCodeFromImageFile(file)
+      scannerRef.current
+        ?.scanFile(file, true)
         .then((decodedText) => setScanResult(decodedText))
         .catch((err) => setError(`Scan error: ${err.message}`));
     }

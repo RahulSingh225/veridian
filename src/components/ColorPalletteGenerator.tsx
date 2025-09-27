@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Upload, Palette, Download, Copy, Eye, Zap, Image as ImageIcon, RefreshCw, Heart, Star, Sparkles } from 'lucide-react';
-import Image  from 'next/image';
+import NextImage  from 'next/image';
 
 // Color manipulation utilities
 const hexToRgb = (hex: string): [number, number, number] => {

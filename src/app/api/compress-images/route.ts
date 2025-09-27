@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 
     if (processedImages.length === 1) {
       // Return single image
-      return new NextResponse(processedImages[0].buffer, {
+      return new NextResponse(processedImages[0].buffer as unknown as ArrayBuffer, {
         headers: {
           'Content-Type': `image/${outputFormat}`,
           'Content-Disposition': `attachment; filename="${processedImages[0].name}"`,

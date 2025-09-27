@@ -451,7 +451,7 @@ export default function RegexTester() {
                   <div className="text-center py-12">
                     <XCircle className="w-16 h-16 text-base-300 mx-auto mb-4" />
                     <h3 className="text-xl font-medium mb-2">No Matches Found</h3>
-                    <p className="text-base-content/70">The pattern didn't match any text in your input.</p>
+                    <p className="text-base-content/70">{`The pattern didn't match any text in your input.`}</p>
                   </div>
                 </div>
               </div>
