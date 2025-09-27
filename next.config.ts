@@ -6,7 +6,7 @@ images: {
   },
   experimental: {
     serverActions: { bodySizeLimit: '10mb' }, 
-    serverComponentsExternalPackages: ['pdf-parse'],// For file uploads
+    serverComponentsExternalPackages: ['pdf-parse','sharp'],// For file uploads
   },
   async headers() {
     return [
