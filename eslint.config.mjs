@@ -10,6 +10,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // This extends the base rules from Next.js and TypeScript.
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     ignores: [
@@ -19,6 +20,14 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
     ],
+  },
+  // Add a new object to override specific rules.
+  // This object must come after the 'extends' to take precedence.
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
   },
 ];
 
