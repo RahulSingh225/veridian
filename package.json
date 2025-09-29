@@ -37,6 +37,7 @@
     "papaparse": "^5.5.3",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.4.149",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-qr-code": "^2.0.18",
