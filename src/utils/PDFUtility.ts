@@ -9,7 +9,7 @@ const sharp = require('sharp'); // For image optimizations if needed
 export default class PDFUtility {
   constructor() {
     // Load pdfjs worker for Node.js
-    pdfjs.GlobalWorkerOptions.workerSrc = require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs');
+    pdfjs.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/legacy/build/pdf.worker.mjs';
   }
 
   // Utility to sanitize file names
