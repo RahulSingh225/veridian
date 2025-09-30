@@ -12,30 +12,54 @@ import PdfToWordConverter from '@/components/PdfToWordConverter';
 import RegexTester from '@/components/RegexTester';
 import TimestampConverter from '@/components/TimestampConverter';
 import URLEncoderDecoder from '@/components/UrlEncoderDecoder';
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 // Define your tools slugs and metadata
 const tools = {
-  'json-formatter': { component: JsonFormatter, title: 'JSON Formatter' },
+  'json-formatter': { component: JsonFormatter, title: 'JSON Formatter & Validator' },
   'pdf-to-word': { component: PdfToWordConverter, title: 'PDF to Word Converter' },
   'regex-tester': { component: RegexTester, title: 'Regex Tester & Builder' },
   'base64-utility': { component: Base64Utility, title: 'Base64 Encoder/Decoder' },
-  'qr-utility': { component: QRCodeTool, title: 'QR Code Utility' },
-  'url-encode': { component: URLEncoderDecoder, title: 'QR Code Utility' },
+  'qr-utility': { component: QRCodeTool, title: 'QR Code Generator' },
+  'url-encode': { component: URLEncoderDecoder, title: 'URL Encoder/Decoder' },
   'color-pallette': { component: ColorPaletteGenerator, title: 'Smart Color Palette Generator' },
-  'csv-json-yaml': { component: ConverterTool, title: 'QR Code Utility' },
-  'html-css-js': { component: MinifierTool, title: 'QR Code Utility' },
-  'icon-generate': { component: IconGenerator, title: 'QR Code Utility' },
-  'img-compress': { component: ImageCompressor, title: 'QR Code Utility' },
-  'mock-data': { component: MockDataGenerator, title: 'QR Code Utility' },
-  'uuid-pass': { component: PasswordUUIDGenerator, title: 'QR Code Utility' },
-  'time-convert': { component: TimestampConverter, title: 'QR Code Utility' },
-
-  // Add more: base64, app-icon-generator, markdown-to-html, html-viewer, etc.
+  'csv-json-yaml': { component: ConverterTool, title: 'CSV/JSON/YAML Converter' },
+  'html-css-js': { component: MinifierTool, title: 'HTML/CSS/JS Minifier' },
+  'icon-generate': { component: IconGenerator, title: 'App Icon Generator' },
+  'img-compress': { component: ImageCompressor, title: 'Image Compressor' },
+  'mock-data': { component: MockDataGenerator, title: 'Mock Data Generator' },
+  'uuid-pass': { component: PasswordUUIDGenerator, title: 'Password & UUID Generator' },
+  'time-convert': { component: TimestampConverter, title: 'Timestamp Converter' },
 };
 
 export async function generateStaticParams() {
   return Object.keys(tools).map((slug) => ({ slug }));
+}
+
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const tool = tools[(await params).slug as keyof typeof tools];
+  if (!tool) return { title: 'Tool Not Found - Veridian' };
+
+  return {
+    title: `${tool.title} - Veridian`,
+    description: `Free ${tool.title} tool by Veridian. Boost productivity with our easy-to-use online utility.`,
+    keywords: [tool.title.toLowerCase(), 'productivity', 'converter', 'tool', 'veridian'],
+    openGraph: {
+      title: `${tool.title} - Veridian`,
+      description: `Use Veridian's ${tool.title} for seamless productivity tasks.`,
+      url: `https://veridian.buzz/tools/${(await params).slug}`,
+      type: 'website',
+      images: `/images/tools/${(await params).slug}.png`, // Add 1200x630 images in /public/images/tools/
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${tool.title} - Veridian`,
+      description: `Try Veridian's ${tool.title} for free!`,
+      images: `/images/tools/${(await params.slug)}.png`,
+    },
+  };
 }
 
 export default async function ToolPage({ params }: { params: { slug: string } }) {
@@ -56,6 +80,20 @@ export default async function ToolPage({ params }: { params: { slug: string } })
           </div>
         </div>
       </div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: tool.title,
+            description: `Free ${tool.title} tool by Veridian for productivity tasks.`,
+            url: `https://veridian.buzz/tools/${params.slug}`,
+            applicationCategory: 'Utilities',
+            operatingSystem: 'Web',
+          }),
+        }}
+      />
     </div>
   );
 }
