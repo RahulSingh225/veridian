@@ -1,10 +1,10 @@
-const fs = require('fs/promises');
-const path = require('path');
-const { PDFDocument, rgb } = require('pdf-lib');
+import fs from 'fs/promises';
+import path from 'path';
+import { PDFDocument, rgb } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
-const { Document, Packer, Paragraph, ImageRun, Table, TableRow, TableCell, WidthType } = require('docx');
-const { createCanvas } = require('canvas'); // For PDF to image rendering
-const sharp = require('sharp'); // For image optimizations if needed
+import { Document, Packer, Paragraph, ImageRun, Table, TableRow, TableCell, WidthType } from 'docx';
+import { createCanvas } from 'canvas'; // For PDF to image rendering
+import sharp from 'sharp'; // For image optimizations if needed
 
 export default class PDFUtility {
   constructor() {
@@ -23,14 +23,16 @@ export default class PDFUtility {
     const uint8Array = new Uint8Array(pdfBuffer);
     const pdfDoc = await pdfjs.getDocument({ data: uint8Array }).promise;
     const doc = new Document({ sections: [] });
-    let sectionChildren = [];
+    const sectionChildren = [];
 
     for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
       const page = await pdfDoc.getPage(pageNum);
       const content = await page.getTextContent();
       let text = '';
       content.items.forEach(item => {
-        text += item.str + ' ';
+        if ('str' in item) {
+          text += item.str + ' ';
+        }
       });
       sectionChildren.push(new Paragraph({ text: text.trim() }));
 
@@ -43,7 +45,7 @@ export default class PDFUtility {
           if (img.kind === 'Image') {
             const imgBuffer = await this._convertImageStream(img.data, img.width, img.height);
             sectionChildren.push(new Paragraph({
-              children: [new ImageRun({ data: imgBuffer, transformation: { width: img.width / 2, height: img.height / 2 } })],
+              children: [new ImageRun({ data: new Uint8Array(imgBuffer), transformation: { width: img.width / 2, height: img.height / 2 },type: 'png' })],
             }));
           }
         }
@@ -52,8 +54,8 @@ export default class PDFUtility {
       // TODO: Enhance for tables (parse content streams for lines/positions to create Table objects)
     }
 
-    doc.addSection({ children: sectionChildren });
-    const docxBuffer = await Packer.toBuffer(doc);
+    const docWithSection = new Document({ sections: [{ children: sectionChildren }] });
+    const docxBuffer = await Packer.toBuffer(docWithSection);
     await fs.writeFile(outputPath, docxBuffer);
   }
 
@@ -78,7 +80,7 @@ export default class PDFUtility {
       const viewport = page.getViewport({ scale: 2 }); // Higher scale for quality
       const canvas = createCanvas(viewport.width, viewport.height);
       const ctx = canvas.getContext('2d');
-      await page.render({ canvasContext: ctx, viewport }).promise;
+      await page.render({ canvas: canvas as any, canvasContext: ctx as any, viewport }).promise;
       const outputPath = path.join(outputDir, `page_${pageNum}.png`);
       await fs.writeFile(outputPath, canvas.toBuffer('image/png'));
     }

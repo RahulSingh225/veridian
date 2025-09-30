@@ -1,0 +1,6 @@
+<!-- public/veridian.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Veridian">
+  <title>Veridian</title>
+  <circle cx="50" cy="50" r="48" fill="#0E8A46"/> <!-- Veridian green -->
+  <path d="M30 52 L44 66 L72 36" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

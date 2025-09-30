@@ -39,7 +39,7 @@ export async function generateStaticParams() {
 
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const tool = tools[params.slug as keyof typeof tools];
+  const tool = tools[(await params).slug as keyof typeof tools];
   if (!tool) return { title: 'Tool Not Found - Veridian' };
 
   return {
@@ -49,15 +49,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     openGraph: {
       title: `${tool.title} - Veridian`,
       description: `Use Veridian's ${tool.title} for seamless productivity tasks.`,
-      url: `https://veridian.buzz/tools/${params.slug}`,
+      url: `https://veridian.buzz/tools/${(await params).slug}`,
       type: 'website',
-      images: `/images/tools/${params.slug}.png`, // Add 1200x630 images in /public/images/tools/
+      images: `/images/tools/${(await params).slug}.png`, // Add 1200x630 images in /public/images/tools/
     },
     twitter: {
       card: 'summary_large_image',
       title: `${tool.title} - Veridian`,
       description: `Try Veridian's ${tool.title} for free!`,
-      images: `/images/tools/${params.slug}.png`,
+      images: `/images/tools/${(await params.slug)}.png`,
     },
   };
 }

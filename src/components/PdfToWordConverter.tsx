@@ -158,7 +158,7 @@ export default function PdfUtilities() {
           {operation === 'split' && (
             <div className="form-control w-full mb-4">
               <label className="label">
-                <span className="label-text">Page Ranges (e.g., "1-3,4-6" or leave empty for single pages)</span>
+                <span className="label-text">Page Ranges (e.g., &#34;1-3,4-6&#34; or leave empty for single pages)</span>
               </label>
               <input
                 type="text"
