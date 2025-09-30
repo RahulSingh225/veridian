@@ -1,15 +1,15 @@
 const fs = require('fs/promises');
 const path = require('path');
 const { PDFDocument, rgb } = require('pdf-lib');
-const pdfjs = require('pdfjs-dist');
+import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 const { Document, Packer, Paragraph, ImageRun, Table, TableRow, TableCell, WidthType } = require('docx');
 const { createCanvas } = require('canvas'); // For PDF to image rendering
 const sharp = require('sharp'); // For image optimizations if needed
 
-class PDFUtility {
+export default class PDFUtility {
   constructor() {
     // Load pdfjs worker for Node.js
-    pdfjs.GlobalWorkerOptions.workerSrc = require.resolve('pdfjs-dist/build/pdf.worker.js');
+    pdfjs.GlobalWorkerOptions.workerSrc = require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs');
   }
 
   // Utility to sanitize file names
@@ -19,8 +19,9 @@ class PDFUtility {
 
   // PDF to DOCX (extracts text and images, approximates tables/layouts)
   async pdfToDocx(inputPath, outputPath) {
-    const pdfBuffer = await fs.readFile(inputPath);
-    const pdfDoc = await pdfjs.getDocument({ data: pdfBuffer }).promise;
+    const pdfBuffer = await fs.readFile(inputPath) ;
+    const uint8Array = new Uint8Array(pdfBuffer);
+    const pdfDoc = await pdfjs.getDocument({ data: uint8Array }).promise;
     const doc = new Document({ sections: [] });
     let sectionChildren = [];
 
