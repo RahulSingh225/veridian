@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { convertPdfToWord } from '@/app/actions';
+import { convertPdfToImages, convertPdfToWord, editPdf, mergePdfs, splitPdf } from '@/app/actions';
 
 type PdfOperation = 'word' | 'images' | 'merge' | 'split' | 'edit';
 
@@ -54,9 +54,14 @@ export default function PdfUtilities() {
 
       // For now, we'll just use the PDF to Word conversion
       // TODO: Add other operations when backend is ready
-      const res = await convertPdfToWord(formData);
+      const res = operation === 'word' ? await convertPdfToWord(formData) :
+                  operation === 'images' ? await convertPdfToImages(formData) :
+                  operation === 'merge' ? await mergePdfs(formData) :
+                  operation === 'split' ? await splitPdf(formData) :
+                  operation === 'edit' ? await editPdf(formData) :
+                  { success: false, error: 'Invalid operation' };
       if (res.success) {
-        setResult(res.docUrl);
+        setResult('OK');
       } else {
         setError(res.error || 'Operation failed');
       }

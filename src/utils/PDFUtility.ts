@@ -17,11 +17,9 @@ export default class PDFUtility {
     return name.replace(/[^a-zA-Z0-9-_]/g, '_').slice(0, 50);
   }
 
-  // PDF to DOCX (extracts text and images, approximates tables/layouts)
   async pdfToDocx(inputPath, outputPath) {
-    const pdfBuffer = await fs.readFile(inputPath) ;
-    const uint8Array = new Uint8Array(pdfBuffer);
-    const pdfDoc = await pdfjs.getDocument({ data: uint8Array }).promise;
+    const pdfBuffer = await fs.readFile(inputPath);
+    const pdfDoc = await pdfjs.getDocument({ data: pdfBuffer }).promise;
     const doc = new Document({ sections: [] });
     let sectionChildren = [];
 
@@ -34,7 +32,7 @@ export default class PDFUtility {
       });
       sectionChildren.push(new Paragraph({ text: text.trim() }));
 
-      // Extract images (basic; for complex, parse operators)
+      // Extract images
       const ops = await page.getOperatorList();
       for (let i = 0; i < ops.fnArray.length; i++) {
         if (ops.fnArray[i] === pdfjs.OPS.paintImageXObject) {
@@ -48,8 +46,6 @@ export default class PDFUtility {
           }
         }
       }
-
-      // TODO: Enhance for tables (parse content streams for lines/positions to create Table objects)
     }
 
     doc.addSection({ children: sectionChildren });
@@ -62,9 +58,10 @@ export default class PDFUtility {
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
     const imgData = ctx.createImageData(width, height);
-    imgData.data.set(data);
+    imgData.data.set(data); // Assumes RGBA; adjust if CMYK/JPEG2000
     ctx.putImageData(imgData, 0, 0);
-    return canvas.toBuffer();
+    const buffer = canvas.toBuffer('image/png');
+    return await sharp(buffer).ensureAlpha().toBuffer(); // Ensure proper alpha channel
   }
 
   // PDF to Image (renders each page to PNG)
@@ -78,9 +75,28 @@ export default class PDFUtility {
       const viewport = page.getViewport({ scale: 2 }); // Higher scale for quality
       const canvas = createCanvas(viewport.width, viewport.height);
       const ctx = canvas.getContext('2d');
-      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      // Set font fallback
+      ctx.font = '12px Arial';
+
+      // Render page
+      try {
+        await page.render({
+          canvasContext: ctx,
+          viewport,
+        }).promise;
+        console.log(`Rendered page ${pageNum} successfully`);
+      } catch (err) {
+        console.error(`Rendering failed for page ${pageNum}:`, err);
+        throw err; // Stop on failure for debugging
+      }
+
       const outputPath = path.join(outputDir, `page_${pageNum}.png`);
-      await fs.writeFile(outputPath, canvas.toBuffer('image/png'));
+      const buffer = canvas.toBuffer('image/png');
+      await sharp(buffer)
+        .toFormat('png')
+        .toFile(outputPath);
+      console.log(`Saved image to ${outputPath}`);
     }
   }
 
