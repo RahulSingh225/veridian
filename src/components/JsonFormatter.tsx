@@ -32,6 +32,8 @@ interface JsonStats {
 }
 
 export default function JsonFormatter() {
+  // Add responsive container class
+  const containerClasses = "flex flex-col gap-4 p-4 sm:p-6 max-w-full h-full";
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
@@ -277,19 +279,19 @@ export default function JsonFormatter() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-4 space-y-6">
+    <div className="max-w-7xl mx-auto p-2 sm:p-4 space-y-4 sm:space-y-6">
       {/* Quick Actions & Settings */}
-      <div className="navbar bg-base-200 rounded-box">
-        <div className="navbar-start">
-          <div className="dropdown">
-            <div tabIndex={0} role="button" className="btn btn-ghost">
-              <Settings className="w-5 h-5" />
-              Settings
+      <div className="navbar flex-col sm:flex-row gap-2 sm:gap-0 bg-base-200 rounded-box p-2 sm:p-4">
+        <div className="navbar-start w-full sm:w-auto flex flex-wrap gap-2">
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-sm sm:btn-md">
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Settings</span>
             </div>
-            <div className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-80 mt-2">
+            <div className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-72 sm:w-80 mt-2">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Indent Size</span>
+                  <span className="label-text text-sm sm:text-base">Indent Size</span>
                   <span className="label-text-alt">{indentSize} spaces</span>
                 </label>
                 <input 

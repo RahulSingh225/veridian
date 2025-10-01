@@ -219,51 +219,38 @@ export default function RegexTester() {
   ];
 
   return (
-    <div className="min-h-screen bg-base-200 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-base-200 p-2 sm:p-4">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-box">
-          <div className="hero-content text-center py-12">
-            <div className="max-w-md">
-              <div className="flex justify-center mb-4">
-                <div className="bg-primary-content rounded-full p-4">
-                  <Zap className="w-8 h-8 text-primary" />
-                </div>
-              </div>
-              <h1 className="text-5xl font-bold">Regex Tester</h1>
-              <p className="py-6">Test and validate regular expressions with real-time feedback and predefined patterns</p>
-            </div>
-          </div>
-        </div>
-
+        
         {/* Tabs */}
-        <div className="tabs tabs-boxed bg-base-100 w-fit">
+        <div className="tabs tabs-boxed bg-base-100 w-fit mx-auto sm:mx-0">
           <button 
-            className={`tab tab-lg ${activeTab === 'tester' ? 'tab-active' : ''}`}
+            className={`tab tab-sm sm:tab-lg ${activeTab === 'tester' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('tester')}
           >
-            <Eye className="w-4 h-4 mr-2" />
-            Tester
+            <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span className="text-sm sm:text-base">Tester</span>
           </button>
           <button 
-            className={`tab tab-lg ${activeTab === 'cheatsheet' ? 'tab-active' : ''}`}
+            className={`tab tab-sm sm:tab-lg ${activeTab === 'cheatsheet' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('cheatsheet')}
           >
-            <Code className="w-4 h-4 mr-2" />
-            Cheat Sheet
+            <Code className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span className="text-sm sm:text-base">Cheat Sheet</span>
           </button>
         </div>
 
         {activeTab === 'tester' ? (
           <>
             {/* Predefined Patterns */}
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <h2 className="card-title text-2xl mb-4">
-                  <Eye className="w-6 h-6" />
+            <div className="card bg-base-100 shadow-lg sm:shadow-xl">
+              <div className="card-body p-3 sm:p-6">
+                <h2 className="card-title text-lg sm:text-2xl mb-2 sm:mb-4">
+                  <Eye className="w-4 h-4 sm:w-6 sm:h-6" />
                   Quick Patterns
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
                   {predefinedPatterns.map((predefined) => (
                     <div
                       key={predefined.name}
@@ -274,14 +261,14 @@ export default function RegexTester() {
                       }`}
                       onClick={() => selectPredefinedPattern(predefined)}
                     >
-                      <div className="card-body">
-                        <div className="flex items-center gap-2 mb-2">
+                      <div className="card-body p-2 sm:p-4">
+                        <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
                           {predefined.icon}
-                          <h3 className="card-title text-sm">{predefined.name}</h3>
+                          <h3 className="card-title text-xs sm:text-sm">{predefined.name}</h3>
                         </div>
-                        <p className="text-xs opacity-80 mb-2">{predefined.description}</p>
-                        <div className="text-xs opacity-60 bg-black bg-opacity-10 p-2 rounded font-mono">
-                          {predefined.sample.substring(0, 50)}...
+                        <p className="text-xs opacity-80 mb-1 sm:mb-2 line-clamp-2">{predefined.description}</p>
+                        <div className="text-xs opacity-60 bg-black bg-opacity-10 p-1 sm:p-2 rounded font-mono overflow-hidden text-ellipsis whitespace-nowrap">
+                          {predefined.sample.substring(0, 30)}...
                         </div>
                       </div>
                     </div>

@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "sync-sheets": "tsx scripts/syncToGoogleSheets.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -22,12 +23,14 @@
     "clean-css": "^5.3.3",
     "color": "^5.0.2",
     "colorthief": "^2.6.0",
+    "csv-string": "^4.1.1",
     "daisyui": "^5.1.10",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "docx": "^9.5.1",
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
+    "googleapis": "^161.0.0",
     "html-minifier-terser": "^7.2.0",
     "html5-qrcode": "^2.3.8",
     "js-yaml": "^4.1.0",
