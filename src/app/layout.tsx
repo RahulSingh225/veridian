@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
+import Footer from "@/components/Footer";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -61,21 +62,47 @@ const themelist = [      'light',
       'winter']
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-const randomValue = themelist[Math.floor(Math.random() * themelist.length)];
   
+}) {
+  const randomValue = themelist[Math.floor(Math.random() * themelist.length)];
   return (
-    <html lang="en" data-theme={randomValue}>
-      <SpeedInsights/>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning data-theme={randomValue}>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col`}>
+        <header className="navbar bg-base-100 shadow-lg px-4">
+          <div className="navbar-start">
+            <div className="dropdown">
+              <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
+                </svg>
+              </div>
+              <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a href="/tools">Tools</a></li>
+                <li><a href="/about">About</a></li>
+              </ul>
+            </div>
+            <a href="/" className="btn btn-ghost text-xl">Veridian</a>
+          </div>
+          <div className="navbar-center hidden lg:flex">
+            <ul className="menu menu-horizontal px-1">
+              <li><a href="/tools">Tools</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </div>
+         
+        </header>
 
-        {children}
+        <main className="flex-grow">
+          {children}
+        </main>
+
+        <Footer />
+        
+        <Analytics />
+        <SpeedInsights />
       </body>
-      <Analytics mode="production" />
     </html>
   );
 }

@@ -222,19 +222,7 @@ export default function RegexTester() {
     <div className="min-h-screen bg-base-200 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-box">
-          <div className="hero-content text-center py-12">
-            <div className="max-w-md">
-              <div className="flex justify-center mb-4">
-                <div className="bg-primary-content rounded-full p-4">
-                  <Zap className="w-8 h-8 text-primary" />
-                </div>
-              </div>
-              <h1 className="text-5xl font-bold">Regex Tester</h1>
-              <p className="py-6">Test and validate regular expressions with real-time feedback and predefined patterns</p>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Tabs */}
         <div className="tabs tabs-boxed bg-base-100 w-fit">
