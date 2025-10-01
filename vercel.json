@@ -1,20 +1,8 @@
 {
-  "crons": [{
-    "path": "/api/cron/sync-sheets",
-    "schedule": "* 0 * * *"
-  }],
-  "env": {
-    "CRON_SECRET": {
-      "description": "Secret key for cron job authentication"
-    },
-    "GOOGLE_SHEETS_ID": {
-      "description": "Google Sheets ID for feedback data"
-    },
-    "GOOGLE_CLIENT_EMAIL": {
-      "description": "Google Service Account email"
-    },
-    "GOOGLE_PRIVATE_KEY": {
-      "description": "Google Service Account private key"
+  "crons": [
+    {
+      "path": "/api/cron/sync-sheets",
+      "schedule": "0 0 * * *"
     }
-  }
+  ]
 }
