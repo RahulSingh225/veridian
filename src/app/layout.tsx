@@ -4,6 +4,8 @@ import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import Footer from "@/components/Footer";
+import Link from "next/link";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -13,7 +15,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
 
 export const metadata: Metadata = {
   title: 'Veridian - Productivity Tools & Converters',
@@ -31,40 +32,43 @@ export const metadata: Metadata = {
     site: '@veridianbuzz',  // Update with your handle
   },
 };
-const themelist = [      'light',
-      'dark',
-      'cupcake',
-      'bumblebee',
-      'emerald',
-      'corporate',
-      'synthwave',
-      'retro',
-      'cyberpunk',
-      'valentine',
-      'halloween',
-      'garden',
-      'forest',
-      'aqua',
-      'lofi',
-      'pastel',
-      'fantasy',
-      'wireframe',
-      'black',
-      'luxury',
-      'dracula',
-      'cmyk',
-      'autumn',
-      'business',
-      'acid',
-      'lemonade',
-      'night',
-      'coffee',
-      'winter']
+
+const themelist = [
+  'light',
+  'dark',
+  'cupcake',
+  'bumblebee',
+  'emerald',
+  'corporate',
+  'synthwave',
+  'retro',
+  'cyberpunk',
+  'valentine',
+  'halloween',
+  'garden',
+  'forest',
+  'aqua',
+  'lofi',
+  'pastel',
+  'fantasy',
+  'wireframe',
+  'black',
+  'luxury',
+  'dracula',
+  'cmyk',
+  'autumn',
+  'business',
+  'acid',
+  'lemonade',
+  'night',
+  'coffee',
+  'winter'
+];
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-  
 }) {
   const randomValue = themelist[Math.floor(Math.random() * themelist.length)];
   return (
@@ -79,19 +83,18 @@ export default function RootLayout({
                 </svg>
               </div>
               <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                <li><a href="/tools">Tools</a></li>
-                <li><a href="/about">About</a></li>
+                <li><Link href="/tools">Tools</Link></li>
+                <li><Link href="/about">About</Link></li>
               </ul>
             </div>
-            <a href="/" className="btn btn-ghost text-xl">Veridian</a>
+            <Link href="/" className="btn btn-ghost text-xl">Veridian</Link>
           </div>
           <div className="navbar-center hidden lg:flex">
             <ul className="menu menu-horizontal px-1">
-              <li><a href="/tools">Tools</a></li>
-              <li><a href="/about">About</a></li>
+              <li><Link href="/tools">Tools</Link></li>
+              <li><Link href="/about">About</Link></li>
             </ul>
           </div>
-         
         </header>
 
         <main className="flex-grow">
