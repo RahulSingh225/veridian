@@ -260,7 +260,7 @@ export default function Home() {
           <div className="max-w-md mx-auto p-4 sm:p-6 bg-base-100 rounded-lg shadow-lg border border-base-300">
             <h3 className="font-semibold text-base sm:text-lg mb-2">🚀 Coming Soon</h3>
             <p className="text-sm sm:text-base text-base-content/70">
-              We're constantly adding new tools and features.
+              We&#39;re constantly adding new tools and features.
               Have a suggestion? Let us know!
             </p>
             <button 

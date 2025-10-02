@@ -1,9 +1,6 @@
 'use server'
 
-import fs from 'fs/promises'
-import path from 'path'
-import { parse as parseCSV, stringify } from 'csv-string'
-
+import { put, list } from '@vercel/blob';  // v2.0.0 exports: put, list
 type FeedbackType = 'suggestion' | 'bug'
 
 interface Feedback {
@@ -13,32 +10,14 @@ interface Feedback {
   timestamp: string
 }
 
-const CSV_FILE_PATH = path.join(process.cwd(), 'data/feedback.csv')
+ const blobPath = 'feedbacks.json';
 
-// Ensure the data directory exists
-async function ensureDirectory() {
-  try {
-    await fs.mkdir(path.join(process.cwd(), 'data'), { recursive: true })
-  } catch (error) {
-    console.error('Error creating directory:', error)
-  }
-}
 
-// Initialize CSV file if it doesn't exist
-async function initializeCSV() {
-  try {
-    await fs.access(CSV_FILE_PATH)
-  } catch {
-    const headers = ['type', 'description', 'email', 'timestamp']
-    await fs.writeFile(CSV_FILE_PATH, stringify(headers))
-  }
-}
+
 
 export async function submitFeedback(type: FeedbackType, description: string, email: string) {
   try {
-    await ensureDirectory()
-    await initializeCSV()
-
+    
     const feedback: Feedback = {
       type,
       description,
@@ -46,12 +25,26 @@ export async function submitFeedback(type: FeedbackType, description: string, em
       timestamp: new Date().toISOString(),
     }
 
-    const row = stringify([
-      [feedback.type, feedback.description, feedback.email, feedback.timestamp]
-    ])
+    
 
-    await fs.appendFile(CSV_FILE_PATH, row)
+   
+   let current: Feedback[] = [];
+    const { blobs } = await list({ prefix: blobPath });  // List blobs with prefix (exact match for single file)
+    if (blobs.length > 0) {
+      const blob = blobs[0];  // Assume single file
+      const response = await fetch(blob.url);
+      if (response.ok) {
+        const content = await response.text();
+        current = JSON.parse(content);
+      }} // Ignore if not found
 
+    // Append
+    const updated = [...current, { ...feedback }];
+    
+    // Upload new version
+    await put(blobPath, JSON.stringify(updated, null, 2), {
+      access: 'public', // Or 'public' if needed
+    });
     // If you want to sync with Google Sheets, you would add the integration here
     // For now, we'll just save to CSV
 
