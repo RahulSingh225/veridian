@@ -2,6 +2,7 @@ import QRCodeTool from '@/components/BarcodeUtility';
 import Base64Utility from '@/components/Base64Utility';
 import ColorPaletteGenerator from '@/components/ColorPalletteGenerator';
 import ConverterTool from '@/components/CSV-JSON-YAMLConverter';
+import HashCalculator from '@/components/HashConverter';
 import MinifierTool from '@/components/HTML-CSS-JS-Minifier';
 import IconGenerator from '@/components/IconGenerator';
 import ImageCompressor from '@/components/ImageCompressor';
@@ -11,6 +12,7 @@ import PasswordUUIDGenerator from '@/components/PasswordUUIDGenerator';
 import PdfToWordConverter from '@/components/PdfToWordConverter';
 import RegexTester from '@/components/RegexTester';
 import TimestampConverter from '@/components/TimestampConverter';
+import UnitConverter from '@/components/UnitConverter';
 import URLEncoderDecoder from '@/components/UrlEncoderDecoder';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -31,6 +33,9 @@ const tools = {
   'mock-data': { component: MockDataGenerator, title: 'Mock Data Generator' },
   'uuid-pass': { component: PasswordUUIDGenerator, title: 'Password & UUID Generator' },
   'time-convert': { component: TimestampConverter, title: 'Timestamp Converter' },
+  'hash-converter': { component: HashCalculator, title: 'Hash Calculate and Compare' },
+  'unit-converter': { component: UnitConverter, title: 'Unit Conversion Utilities' },
+
 };
 
 export async function generateStaticParams() {

@@ -24,6 +24,7 @@
     "clean-css": "^5.3.3",
     "color": "^5.0.2",
     "colorthief": "^2.6.0",
+    "crypto-js": "^4.2.0",
     "csv-string": "^4.1.1",
     "daisyui": "^5.1.10",
     "date-fns": "^4.1.0",
