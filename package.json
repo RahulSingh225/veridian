@@ -32,6 +32,7 @@
     "date-fns-tz": "^3.2.0",
     "docx": "^9.5.1",
     "file-saver": "^2.0.5",
+    
     "fs": "^0.0.1-security",
     "googleapis": "^161.0.0",
     "html-minifier-terser": "^7.2.0",
@@ -47,6 +48,7 @@
     "pdfjs-dist": "^5.4.149",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-dropzone": "^14.3.8",
     "react-qr-code": "^2.0.18",
     "react-syntax-highlighter": "^15.6.6",
     "sharp": "^0.34.4",

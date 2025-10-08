@@ -123,7 +123,7 @@ export async function convertPdfToWord(
 }
 
 // Convert PDF to Images
-export async function convertPdfToImages(formData: FormData): Promise<{
+export async function convertPdfToImages(formData: FormData,service:DocumentService): Promise<{
   success: boolean;
   imageUrls?: string[];
   error?: string;
@@ -135,23 +135,64 @@ export async function convertPdfToImages(formData: FormData): Promise<{
 
   try {
     validateFileSize(file);
-    await ensureTempDirs();
+     const docService = service ?? new DocumentService(API_BASE_URL);
 
-    const tempPath = join(TEMP_DIR, `temp_${Date.now()}.pdf`);
-    const outputDir = join(OUTPUT_DIR, `images_${Date.now()}`);
+   // Step 1: Get presigned upload URL and key
+    const uploadResponse = await docService.getUploadUrl(file.name);
+    // Assuming response shape: { url: string; key: string; } – adjust based on actual API response
+    const { upload_url: uploadUrl, key: fileKey } = uploadResponse as { upload_url: string; key: string };
+    if (!uploadUrl || !fileKey) {
+      throw new Error('Failed to obtain upload URL or key');
+    }
 
-    const buffer = await file.arrayBuffer();
-    await writeFile(tempPath, Buffer.from(buffer));
+    // Step 2: Upload the file to the presigned URL
+    const uploadResponseHttp = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type,
+      },
+    });
+ 
+    if (!uploadResponseHttp.ok) {
+      const errorText = await uploadResponseHttp.text();
+  console.log('S3 Error:', errorText);
+      throw new Error(`Upload failed: ${uploadResponseHttp.statusText}`);
+    }
+    console.log(fileKey)
+    // Step 3: Process the document
+    const processRequest: ProcessRequest = {
+      operation: 'pdf_to_image', // Adjust to the actual operation name in your API
+      file_keys: [fileKey],
+      options: {}, // Add any options if needed, e.g., { format: 'docx' }
+    };
+    const processResponse = await docService.processDocument(processRequest);
+    // Assuming response contains { job_id: string; } – adjust based on actual response
+    const { job_id: jobId } = processResponse as { job_id: string };
+    if (!jobId) {
+      throw new Error('Failed to start processing job');
+    }
 
-    const util = new PDFUtility();
-    await util.pdfToImages(tempPath, outputDir);
+    // Step 4: Poll for status until completed or failed
+    let statusResponse;
+    let attempts = 0;
+    const maxAttempts = 60; // e.g., 60 seconds at 1s intervals
+    while (attempts < maxAttempts) {
+      statusResponse = await docService.getStatus(jobId);
+      if (statusResponse.status === 'completed') {
+        if (statusResponse.download_url) {
+          return { success: true, imageUrls: statusResponse.download_url };
+        }
+        throw new Error('Processing completed but no download URL available');
+      } else if (statusResponse.status === 'failed') {
+        throw new Error(statusResponse.error || 'Processing failed');
+      }
+      // Still pending/processing: wait and retry
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 1s delay
+      attempts++;
+    }
 
-    // TODO: Implement image serving
-    const imageUrls = ['/api/download?file=' + encodeURIComponent(outputDir)];
-    scheduleCleanup(outputDir);
-    await unlink(tempPath);
-
-    return { success: true, imageUrls };
+    throw new Error('Processing timed out');
   } catch (err) {
     console.error('PDF to Images conversion error:', err);
     return { success: false, error: (err as Error).message || 'Conversion failed' };

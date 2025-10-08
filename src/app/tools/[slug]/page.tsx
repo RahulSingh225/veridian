@@ -1,5 +1,6 @@
 import QRCodeTool from '@/components/BarcodeUtility';
 import Base64Utility from '@/components/Base64Utility';
+import BuildShare from '@/components/BuildShare';
 import ColorPaletteGenerator from '@/components/ColorPalletteGenerator';
 import ConverterTool from '@/components/CSV-JSON-YAMLConverter';
 import HashCalculator from '@/components/HashConverter';
@@ -35,6 +36,7 @@ const tools = {
   'time-convert': { component: TimestampConverter, title: 'Timestamp Converter' },
   'hash-converter': { component: HashCalculator, title: 'Hash Calculate and Compare' },
   'unit-converter': { component: UnitConverter, title: 'Unit Conversion Utilities' },
+  'build-share': { component: BuildShare, title: 'Share your Apps build' },
 
 };
 

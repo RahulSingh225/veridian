@@ -7,7 +7,7 @@ import { useState } from "react";
 // Tool categories for better organization
 const categories = {
   "Popular": ["json-formatter", "regex-tester", "pdf-to-word", "img-compress"],
-  "Code & Development": ["json-formatter", "regex-tester", "html-css-js", "mock-data", "uuid-pass","hash-converter"],
+  "Code & Development": ["json-formatter", "regex-tester", "html-css-js", "mock-data", "uuid-pass","hash-converter","build-share"],
   "Data Conversion": ["csv-json-yaml", "base64-utility", "pdf-to-word"],
   "Image & Design": ["color-pallette", "icon-generate", "img-compress", "qr-utility"],
   "Text & Encoding": ["url-encode", "base64-utility", "uuid-pass"],
@@ -110,6 +110,12 @@ const tools: Tool[] = [
     slug: 'unit-converter',
     title: 'Unit Converter',
     description: 'Convert between different units of measurement quickly and accurately.',
+    icon: '⏰'
+  },
+   {
+    slug: 'build-share',
+    title: 'App Share',
+    description: 'Share your app builds with a simple link.',
     icon: '⏰'
   }
 ];
