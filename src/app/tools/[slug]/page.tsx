@@ -81,6 +81,7 @@ export default async function ToolPage({ params }: { params: { slug: string } })
             {tool.title}
           </h1>
         </div>
+        
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <tool.component />
