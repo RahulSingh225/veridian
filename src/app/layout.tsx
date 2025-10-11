@@ -31,6 +31,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@veridianbuzz',  // Update with your handle
   },
+  'google-adsense-account':'ca-pub-3924541720853555'
 };
 
 const themelist = [
