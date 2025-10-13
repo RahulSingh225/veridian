@@ -81,6 +81,14 @@ export default function RootLayout({
   const randomValue = themelist[Math.floor(Math.random() * themelist.length)];
   return (
     <html lang="en" suppressHydrationWarning data-theme={randomValue}>
+      <head>
+        <Script
+          id="adsense"
+          strategy="afterInteractive"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID}`}
+          crossOrigin="anonymous"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col`}
       >
@@ -141,7 +149,6 @@ export default function RootLayout({
 
         <Analytics />
         <SpeedInsights />
-        <AdBanner slot="9467654538" />
       </body>
     </html>
   );

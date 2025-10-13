@@ -71,5 +71,6 @@
     "patch-package": "^8.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "browserslist": "> 1%"
 }

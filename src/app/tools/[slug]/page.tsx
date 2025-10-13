@@ -127,6 +127,7 @@ export default async function ToolPage({
             <tool.component />
           </div>
         </div>
+        <AdBanner slot="9467654538" />
       </div>
       <script
         type="application/ld+json"
