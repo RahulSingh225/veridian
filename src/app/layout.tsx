@@ -6,7 +6,9 @@ import { Analytics } from "@vercel/analytics/next";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import Script from "next/script";
+
 import AdBanner from "@/components/AdSense";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

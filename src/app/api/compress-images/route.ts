@@ -1,4 +1,3 @@
-// app/api/compress-images/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 import archiver from 'archiver';
@@ -13,13 +12,21 @@ export async function POST(req: NextRequest) {
   const height = formData.get('height') ? parseInt(formData.get('height') as string) : undefined;
   const maintainAspect = formData.get('maintainAspect') === 'true';
 
+  // Validate inputs
   if (images.length === 0) {
     return NextResponse.json({ error: 'No images provided' }, { status: 400 });
+  }
+
+  const validFormats = ['jpeg', 'png', 'webp', 'avif', 'gif'];
+  const finalFormat = outputFormat === 'original' ? images[0].type.split('/')[1] : outputFormat;
+  if (!validFormats.includes(finalFormat)) {
+    return NextResponse.json({ error: `Unsupported image format: ${finalFormat}` }, { status: 400 });
   }
 
   try {
     const processedImages: { name: string; buffer: Buffer }[] = [];
 
+    // Process each image
     for (const image of images) {
       const buffer = Buffer.from(await image.arrayBuffer());
       let sharpImage = sharp(buffer, { animated: image.type === 'image/gif' });
@@ -34,9 +41,9 @@ export async function POST(req: NextRequest) {
 
       // Compress based on format
       let outputBuffer: Buffer;
-      const options = { quality, mozjpeg: true }; // Common options
+      const options = { quality, mozjpeg: true };
 
-      switch (outputFormat === 'original' ? image.type.split('/')[1] : outputFormat) {
+      switch (finalFormat) {
         case 'jpeg':
           outputBuffer = await sharpImage.jpeg(options).toBuffer();
           break;
@@ -57,19 +64,27 @@ export async function POST(req: NextRequest) {
       }
 
       const ext = outputFormat === 'original' ? image.name.split('.').pop() : outputFormat;
-      processedImages.push({ name: `compressed_${image.name.replace(/\.[^/.]+$/, '')}.${ext}`, buffer: outputBuffer });
+      const sanitizedName = `compressed_${image.name.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9.-]/g, '_')}.${ext}`;
+      processedImages.push({ name: sanitizedName, buffer: outputBuffer });
     }
 
     if (processedImages.length === 1) {
-      // Return single image
-      return new NextResponse(processedImages[0].buffer as unknown as ArrayBuffer, {
+      // Single image: return as a web-compatible ReadableStream
+      const buffer = processedImages[0].buffer;
+      const webStream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(buffer);
+          controller.close();
+        }
+      });
+      return new NextResponse(webStream, {
         headers: {
-          'Content-Type': `image/${outputFormat}`,
+          'Content-Type': `image/${finalFormat}`,
           'Content-Disposition': `attachment; filename="${processedImages[0].name}"`,
         },
       });
     } else {
-      // ZIP for batch
+      // Multiple images: return as ZIP
       const archive = archiver('zip', { zlib: { level: 9 } });
       const stream = new ReadableStream({
         start(controller) {
@@ -84,7 +99,7 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      return new NextResponse(stream as any, {
+      return new NextResponse(stream, {
         headers: {
           'Content-Type': 'application/zip',
           'Content-Disposition': 'attachment; filename="compressed-images.zip"',
@@ -92,6 +107,7 @@ export async function POST(req: NextRequest) {
       });
     }
   } catch (err) {
+    console.error('Compression error:', err, 'for images:', images.map(img => img.name));
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 }
