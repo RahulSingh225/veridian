@@ -7,6 +7,9 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import Script from "next/script";
 
+import AdBanner from "@/components/AdSense";
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -81,7 +84,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-theme={randomValue}>
       <head>
-        {" "}
         <Script
           id="adsense"
           strategy="afterInteractive"

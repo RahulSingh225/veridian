@@ -7,11 +7,11 @@ import { useState } from "react";
 // Tool categories for better organization
 const categories = {
   "Popular": ["json-formatter", "regex-tester", "pdf-to-word", "img-compress"],
-  "Code & Development": ["json-formatter", "regex-tester", "html-css-js", "mock-data", "uuid-pass"],
+  "Code & Development": ["json-formatter", "regex-tester", "html-css-js", "mock-data", "uuid-pass","hash-converter","build-share"],
   "Data Conversion": ["csv-json-yaml", "base64-utility", "pdf-to-word"],
   "Image & Design": ["color-pallette", "icon-generate", "img-compress", "qr-utility"],
   "Text & Encoding": ["url-encode", "base64-utility", "uuid-pass"],
-  "Time & Date": ["time-convert"]
+  "Conversion": ["time-convert","unit-converter"]
 };
 
 // Define available tools with updated icons
@@ -98,6 +98,24 @@ const tools: Tool[] = [
     slug: 'time-convert',
     title: 'Timestamp Converter',
     description: 'Convert and manipulate timestamps easily.',
+    icon: '⏰'
+  },
+  {
+    slug: 'hash-converter',
+    title: 'Hash Calculator',
+    description: 'Generate and compare hashes using various algorithms.',
+    icon: '⏰'
+  },
+  {
+    slug: 'unit-converter',
+    title: 'Unit Converter',
+    description: 'Convert between different units of measurement quickly and accurately.',
+    icon: '⏰'
+  },
+   {
+    slug: 'build-share',
+    title: 'App Share',
+    description: 'Share your app builds with a simple link.',
     icon: '⏰'
   }
 ];

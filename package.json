@@ -19,11 +19,13 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/blob": "^2.0.0",
     "@vercel/speed-insights": "^1.2.0",
+    "abort-controller": "^3.0.0",
     "archiver": "^7.0.1",
     "canvas": "^3.2.0",
     "clean-css": "^5.3.3",
     "color": "^5.0.2",
     "colorthief": "^2.6.0",
+    "crypto-js": "^4.2.0",
     "csv-string": "^4.1.1",
     "daisyui": "^5.1.10",
     "date-fns": "^4.1.0",
@@ -39,12 +41,14 @@
     "mammoth": "^1.10.0",
     "marked": "^16.3.0",
     "next": "15.5.3",
+    "next-google-adsense": "^1.2.0",
     "papaparse": "^5.5.3",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^5.4.149",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-dropzone": "^14.3.8",
     "react-qr-code": "^2.0.18",
     "react-syntax-highlighter": "^15.6.6",
     "sharp": "^0.34.4",
@@ -67,5 +71,6 @@
     "patch-package": "^8.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "browserslist": "> 1%"
 }
