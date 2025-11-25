@@ -2,7 +2,7 @@
 
 import { writeFile, unlink, mkdir } from 'fs/promises';
 import { join } from 'path';
-import PDFUtility from '@/utils/PDFUtility';
+//import PDFUtility from '@/utils/PDFUtility';
 import { DocumentService, ProcessRequest } from '@/utils/UvicornService';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -49,6 +49,7 @@ export async function convertPdfToWord(
   docUrl?: string;
   error?: string;
 }> {
+  return { success: false, error: 'Convert function not implemented' };
   const file = formData.get('file0') as File;
   if (!file || file.type !== 'application/pdf') {
     return { success: false, error: 'No valid PDF file provided' };
@@ -59,7 +60,7 @@ export async function convertPdfToWord(
     // await ensureTempDirs(); // Remove if not needed for API flow
 
     const docService = service ?? new DocumentService(API_BASE_URL);
-
+console.log('DocumentService initialized')
     // Step 1: Get presigned upload URL and key
     const uploadResponse = await docService.getUploadUrl(file.name);
     // Assuming response shape: { url: string; key: string; } – adjust based on actual API response
@@ -128,6 +129,7 @@ export async function convertPdfToImages(formData: FormData,service:DocumentServ
   imageUrls?: string[];
   error?: string;
 }> {
+  return { success: false, error: 'PDF to Images function not implemented' };
   const file = formData.get('file0') as File;
   if (!file || file.type !== 'application/pdf') {
     return { success: false, error: 'No valid PDF file provided' };
@@ -205,6 +207,7 @@ export async function mergePdfs(formData: FormData): Promise<{
   pdfUrl?: string;
   error?: string;
 }> {
+  return { success: false, error: 'Merge function not implemented' };
   const files: File[] = [];
   for (let i = 0; formData.get(`file${i}`); i++) {
     const file = formData.get(`file${i}`) as File;
@@ -254,6 +257,7 @@ export async function splitPdf(formData: FormData): Promise<{
   pdfUrls?: string[];
   error?: string;
 }> {
+  return { success: false, error: 'Split function not implemented' };
   const file = formData.get('file0') as File;
   if (!file || file.type !== 'application/pdf') {
     return { success: false, error: 'No valid PDF file provided' };
@@ -296,6 +300,7 @@ export async function editPdf(formData: FormData): Promise<{
   pdfUrl?: string;
   error?: string;
 }> {
+  return { success: false, error: 'Edit function not implemented' };
   const file = formData.get('file0') as File;
   if (!file || file.type !== 'application/pdf') {
     return { success: false, error: 'No valid PDF file provided' };
